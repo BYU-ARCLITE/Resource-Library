@@ -1,0 +1,9 @@
+# This is base system setup for all machines running parts of this application
+
+- include: ../common/tasks/sys.yml
+  tags: sys
+
+- include: ../common/tasks/forward_logs_to_logstash.yml
+  tags: sys
+  vars:
+    logstash_host: birch.actesting.org

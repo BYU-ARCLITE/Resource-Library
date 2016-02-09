@@ -1,0 +1,10 @@
+- name: restart ayamel-transcoder
+  supervisorctl: name="ayamel-transcoder:" state=restarted
+  ignore_errors: true
+
+- name: restart ayamel-indexer
+  supervisorctl: name="ayamel-indexer:" state=restarted
+  ignore_errors: true
+
+#- name: restart notifications
+#  supervisorctl: name=notifications: state=restarted

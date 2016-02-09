@@ -1,0 +1,30 @@
+# This sets up web servers (running nginx)
+- name: add www-data user to ayamel group
+  user: name=www-data groups=www-data,ayamel
+
+- include: ../../common/tasks/install_php5_fpm.yml
+
+- name: set up php fpm pool processes to run as ayamel user
+  copy: src=files/php-fpm-pool-www.conf
+        dest=/etc/php5/fpm/pool.d/www.conf
+  notify:
+    - restart php5-fpm
+
+- include: ../../common/tasks/nginx_app_config.yml
+  vars:
+    name: ayamel
+    template: templates/web-nginx.j2
+    root: /var/ayamel/ayamel/web
+    domain: api.ayamel.org
+
+- name: nginx updated mime types
+  copy: src=files/mime.types
+        dest=/etc/nginx/mime.types
+  notify:
+    - restart nginx
+
+- include: ../../common/tasks/ferm_allow_local_port.yml
+  vars:
+    name: nginx
+    port: 1080
+    src: "({{ groups[('production' if production else 'staging') + '-proxy']|join(' ') }})"

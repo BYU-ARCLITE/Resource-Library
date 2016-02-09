@@ -1,0 +1,8 @@
+# This sets up rabbitmq servers
+- include: ../../common/tasks/install_rabbitmq_server.yml
+
+- include: ../../common/tasks/ferm_allow_local_port.yml
+  vars:
+    name: appservers-rabbit
+    port: 5672
+    src: "({{ groups[('production' if production else 'staging') + '-appservers']|join(' ') }})"

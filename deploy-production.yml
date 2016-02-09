@@ -1,0 +1,39 @@
+- include: common/confirm_production.yml
+
+- hosts: production-webservers
+  connection: ssh
+  sudo: yes
+  vars:
+    production: true
+    symfony_env: prod
+    app_repo_url: git@github.com:AmericanCouncils/AyamelResourceApiServer.git
+    app_version: 0.2.3
+    app_dir: /var/ayamel
+    app_params_template: parameters-production.yml.j2
+    rsync_user: "{{ansible_ssh_user}}"
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  tasks:
+    - include: tasks/app-deploy.yml
+
+- hosts: production-taskservers
+  connection: ssh
+  sudo: yes
+  vars:
+    app_repo_url: git@github.com:AmericanCouncils/AyamelResourceApiServer.git
+    app_version: 0.2.3
+    app_dir: /var/ayamel
+    app_params_template: parameters-production.yml.j2
+    rsync_user: "{{ansible_ssh_user}}"
+    transcoding_process_count: 4
+    search_index_process_count: 2
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  tasks:
+    - include: tasks/app-deploy.yml
+    - include: tasks/system/transcoding.yml
+    - include: tasks/system/search_indexer.yml
+      notify: 
+        - restart ayamel-rabbitmq-consumer-transcoding

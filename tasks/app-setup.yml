@@ -1,0 +1,25 @@
+# This sets up machines that need to run the application code in any capacity
+
+- include: ../common/tasks/install_php5.yml
+
+- include: ../common/tasks/symfony_app_user.yml
+  vars:
+    user: ayamel
+  tags:
+    - app-user
+
+- name: install php-curl package
+  apt: pkg=php5-curl
+       state=present
+  notify: 
+      - restart php5-fpm
+
+- include: ../common/tasks/nfs_mount.yml
+  vars:
+    name: AyamelStorage
+    host: 192.168.251.43
+    hostDir: AyamelStorage
+
+- name: install mediainfo
+  apt: pkg=mediainfo
+       state=present

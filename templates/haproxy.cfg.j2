@@ -1,0 +1,48 @@
+global
+	log 127.0.0.1	local7
+	chroot /home/haproxy
+	user haproxy
+	group haproxy
+	daemon
+	#debug
+	#quiet
+
+defaults
+	mode http
+	log global
+	option httplog clf
+	option log-separate-errors
+	retries	3
+	option http-server-close
+	option forwardfor
+	timeout connect	5s
+	timeout client	10s
+	timeout server  10s
+
+frontend ayamel_front_unsecure
+	bind :80
+
+	# Temporarily not using SSL (dsimon 2013-05-23)
+#	mode tcp
+#	default_backend redirect_ssl
+	reqadd X-Forwarded-Proto:\ http
+	reqadd X-Forwarded-Port:\ 80
+	default_backend nginx
+
+frontend ayamel_front
+	bind :443 ssl crt /etc/ssl/private/ayamel-combined.pem
+
+	reqadd X-Forwarded-Proto:\ https
+	reqadd X-Forwarded-Port:\ 443
+
+	default_backend nginx
+
+backend nginx
+	option httpchk
+{% for host in groups[('production' if production else 'staging') + '-webservers'] %}
+	server {{host}} {{host}}:1080
+{% endfor %}
+
+backend redirect_ssl
+	mode http
+	redirect scheme https code 301

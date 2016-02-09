@@ -1,0 +1,16 @@
+- hosts: staging
+  connection: ssh
+  sudo: yes  
+  vars:
+    production: false
+    symfony_env: dev
+    app_repo_url: git@github.com:AmericanCouncils/AyamelResourceApiServer.git
+    app_version: master
+    app_dir: /var/ayamel
+    app_params_template: parameters-staging.yml.j2
+    rsync_user: "{{ansible_ssh_user}}"
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  tasks:
+    - include: tasks/app-deploy.yml

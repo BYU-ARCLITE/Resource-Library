@@ -1,0 +1,32 @@
+# This sets up database servers
+- include: ../../common/tasks/install_mongodb.yml
+
+- include: ../../common/tasks/ferm_allow_local_port.yml
+  vars:
+    name: appservers-mongo
+    port: 27017
+    src: "({{ groups[('production' if production else 'staging') + '-appservers']|join(' ') }})"
+
+- include: ../../common/tasks/ferm_allow_local_port.yml
+  vars:
+    name: replicas-mongo
+    port: 27017
+    src: "({{ groups[('production' if production else 'staging') + '-dbservers']|join(' ') }})"
+
+- include: ../../common/tasks/nfs_mount.yml
+  vars:
+    name: AyamelDB
+    host: 192.168.251.43
+    hostDir: "{{nfs_db_dir}}"
+  when: production
+
+- name: create mongodb directory in NFS share
+  file: path=/vrthst/AyamelDB/mongodb state=directory
+  when: production
+
+- name: mongodb config
+  template: src=../../templates/mongodb.conf.j2
+            dest=/etc/mongodb.conf
+            mode=0644
+  notify:
+    - restart mongodb

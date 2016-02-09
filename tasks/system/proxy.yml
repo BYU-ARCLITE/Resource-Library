@@ -1,0 +1,30 @@
+# This sets up proxy servers
+- name: add www-data user to ayamel group
+  user: name=www-data groups=www-data,ayamel
+
+- include: ../../common/tasks/install_haproxy.yml
+
+- name: api.ayamel.org ssl cert
+  copy: src=files/secure/{{pemfile}}
+        dest=/etc/ssl/private/ayamel-combined.pem
+        mode=0400
+  notify:
+    - restart haproxy
+  tags:
+    - haproxy
+
+- name: haproxy config
+  template: src=templates/haproxy.cfg.j2
+            dest=/etc/haproxy/haproxy.cfg
+  notify:
+    - restart haproxy
+  tags:
+    - haproxy
+
+- include: ../../common/tasks/ferm_allow_global_port.yml
+  vars:
+    port: 80
+
+- include: ../../common/tasks/ferm_allow_global_port.yml
+  vars:
+    port: 443

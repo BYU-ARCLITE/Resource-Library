@@ -1,0 +1,64 @@
+parameters:
+    mailer_transport: smtp
+    mailer_host: localhost
+    mailer_user: null
+    mailer_password: null
+
+    mongodb_hosts: {{ groups['production-dbservers']|join(',') }}
+    mongodb_replica_set: ayamel_prod
+    mongodb_database: ayamel_prod
+
+    rabbitmq_host: {{ groups['production-queueservers'][0] }}
+    rabbitmq_port: 5672
+    rabbitmq_user: guest
+    rabbitmq_password: guest
+    rabbitmq_vhost: '/'
+
+    elasticsearch_index: ayamel_prod
+    elasticsearch_host: {{ groups['production-searchservers'][0] }}
+    elasticsearch_port: 9200
+    search_index_queue_name: ayamel_search_index_prod
+
+    locale: en
+    secret: A RANDOM SECRET GOES HERE
+
+    apc_web_domain: http://api.ayamel.org
+
+    logfile_path: %kernel.logs_dir%/%kernel.environment%.log
+
+    include_api_exception_data: false
+
+    ayamel.filesystem.local_filesystem.root_dir: /vrthst/AyamelStorage/prod/file_uploads
+    ayamel.filesystem.local_filesystem.secret: ANOTHER RANDOM SECRET GOES HERE
+    ayamel.filesystem.local_filesystem.base_uri: http://api.ayamel.org/files
+
+    ayamel.transcoding.temp_directory: %kernel.root_dir%/files/tmp
+    ayamel.transcoding.ffmpegthumbnailer_path: /usr/bin/ffmpegthumbnailer
+
+    ## Transcoding support
+    mediainfo_path: /usr/bin/mediainfo
+    transcoding_tmp_dir: %kernel.root_dir%/files/tmp
+    ffmpeg_path: /usr/local/bin/ffmpeg
+    ffmpegthumbnailer_path: /usr/bin/ffmpegthumbnailer
+    transcoding_queue_name: ayamel_transcoding_prod
+    #if you use ffmpeg w/ libvpx to encode webm, it doesn't seem to let you specify "-threads 0" to maximize cpu usage, instead
+    #you have to be specific in the number of threads, which should be the same as the number of cores on the machine
+    libvpx_threads: 1
+    libx264_threads: 1
+
+    #youtube api support
+    google_app_name: 'Ayamel Media API'
+    google_api_key: 'GOOGLE API KEY GOES HERE'
+
+    ayamel.clients:
+        some_client:
+            name: SOME CLIENT NAME
+            apiKey: SOME CLIENT SECURE API KEY
+        another_client:
+            name: ANOTHER CLIENT NAME
+            apiKey: ANOTHER CLIENT SECURE API KEY
+
+services:
+    ayamel.client_loader:
+        class: Ayamel\ApiBundle\Client\ConfigClientLoader
+        arguments: [%ayamel.clients%]

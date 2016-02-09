@@ -1,0 +1,10 @@
+{% if production %}
+dbpath=/vrthst/AyamelDB/mongodb
+{% else %}
+dbpath=/var/lib/mongodb
+{% endif %}
+
+logpath=/var/log/mongodb/mongodb.log
+logappend=true
+
+replSet = ayamel_{{'prod' if production else 'staging'}}

@@ -1,0 +1,9 @@
+# This sets up search index task servers (running the 
+# php search index consumers, not elastic search itself)
+
+- include: ../../common/tasks/symfony_rabbitmq_consumer.yml
+  vars:
+    name: ayamel-indexer
+    consumer: search_index
+    dir: /var/ayamel/ayamel
+    process_count: "{{search_index_process_count}}"

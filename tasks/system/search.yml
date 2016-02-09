@@ -1,0 +1,24 @@
+# This sets up elastic search servers
+- include: ../../common/tasks/install_elasticsearch.yml
+
+- include: ../../common/tasks/nfs_mount.yml
+  vars:
+    name: AyamelSearch
+    host: 192.168.251.43
+    hostDir: AyamelSearch
+
+- name: create elasticsearch directory in NFS share
+  file: path=/vrthst/AyamelSearch/elasticsearch state=directory
+
+- include: ../../common/tasks/ferm_allow_local_port.yml
+  vars:
+    name: appservers-elastic-search
+    port: 9200
+    src: "({{ groups[('production' if production else 'staging') + '-appservers']|join(' ') }})"
+
+- name: elasticsearch config
+  template: src=../../templates/elasticsearch.yml.j2
+            dest=/etc/elasticsearch/elasticsearch.yml
+            mode=0644
+  notify:
+    - restart elasticsearch

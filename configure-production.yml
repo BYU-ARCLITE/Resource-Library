@@ -1,0 +1,77 @@
+- include: common/confirm_production.yml
+
+- hosts: production-dbservers
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/system/db.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+    production: true
+
+- hosts: production-proxy
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/system/proxy.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+      production: true
+      pemfile: ayamel-combined-production.pem
+
+- hosts: production-webservers
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/app-setup.yml
+    - include: tasks/system/webserver.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+      nginx_files_directory: /vrthst/AyamelStorage/prod/file_uploads/
+      production: true
+
+- hosts: production-taskservers
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/app-setup.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+    production: true
+    symfony_env: prod
+
+- hosts: production-queueservers
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/system/queue.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+    - production: true
+
+- hosts: production-searchservers
+  connection: ssh
+  sudo: yes
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/system/search.yml
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  vars:
+    - production: true

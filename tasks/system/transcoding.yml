@@ -1,0 +1,14 @@
+# This sets up transcoding task servers
+- include: ../../common/tasks/symfony_rabbitmq_consumer.yml
+  vars:
+    name: ayamel-transcoder
+    consumer: transcoding
+    dir: /var/ayamel/ayamel
+    process_count: "{{transcoding_process_count}}"
+
+- include: ../../common/tasks/install_ffmpeg.yml
+  tags: ffmpeg
+
+- name: install ffmpegthumbnailer
+  apt: pkg=ffmpegthumbnailer
+       state=present

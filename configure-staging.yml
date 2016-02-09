@@ -1,0 +1,22 @@
+- hosts: staging
+  connection: ssh
+  sudo: yes
+  handlers:
+    - include: common/handlers/sys.yml
+    - include: handlers/sys.yml
+  tasks:
+    - include: tasks/common.yml
+    - include: tasks/app-setup.yml
+    - include: tasks/system/webserver.yml
+    - include: tasks/system/proxy.yml
+    - include: tasks/system/transcoding.yml
+    - include: tasks/system/search_indexer.yml
+    - include: tasks/system/db.yml
+    - include: tasks/system/search.yml
+  vars:
+      nginx_files_directory: /vrthst/AyamelStorage/staging/file_uploads/
+      production: false
+      symfony_env: dev
+      transcoding_process_count: 4
+      search_index_process_count: 1
+      pemfile: ayamel-combined-staging.pem

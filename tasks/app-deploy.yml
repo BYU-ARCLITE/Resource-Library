@@ -1,0 +1,13 @@
+# This deploys the Ayamel application
+- include: ../common/tasks/sliding_deploy_symfony.yml
+  vars:
+    name: ayamel
+    user: ayamel
+    git_url: "{{app_repo_url}}"
+    version: "{{app_version}}"
+    params_template: "{{app_params_template}}"
+
+- name: create symlink to ayamel symfony console
+  file: src={{app_dir}}/ayamel/app/console
+        dest=/usr/local/bin/ayamel
+        state=link
